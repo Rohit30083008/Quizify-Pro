@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Quizify Pro - Ultimate Quiz Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ==================== COMPLETE CSS ==================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: pan-y pinch-zoom; }
+        html, body { touch-action: pan-x pan-y; overflow-x: hidden; }
+        body { font-family: 'Inter', 'Outfit', sans-serif; background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%); min-height: 100vh; color: #0f172a; overflow-x: hidden; transition: background 0.3s ease, color 0.3s ease; font-size: 15px; }
+        body.dark-mode { background: linear-gradient(145deg, #0f172a 0%, #0a0f1a 100%); color: #e2e8f0; }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #6366f1, #8b5cf6); z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column; transition: opacity 0.5s ease; }
+        .loading-spinner { width: 60px; height: 60px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        .loading-text { color: white; font-size: 1.2rem; font-weight: 600; }
+        .loading-subtext { color: rgba(255,255,255,0.8); font-size: 0.8rem; margin-top: 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .login-container { width: 100%; max-width: 450px; margin: 0 auto; padding: 20px; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .login-container.hidden { display: none; }
+        .auth-card { background: white; border-radius: 32px; padding: 32px 28px; box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1); width: 100%; }
+        body.dark-mode .auth-card { background: #1e293b; }
+        .logo-section { text-align: center; margin-bottom: 28px; }
+        .logo-icon { width: 70px; height: 70px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 35px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 2rem; color: white; }
+        .logo-section h1 { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .auth-tabs { display: flex; gap: 12px; margin-bottom: 28px; background: #f1f5f9; border-radius: 60px; padding: 4px; }
+        body.dark-mode .auth-tabs { background: #334155; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; border-radius: 50px; font-size: 0.95rem; font-weight: 600; cursor: pointer; color: #64748b; font-family: inherit; }
+        .tab-btn.active { background: #6366f1; color: white; }
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 8px; }
+        body.dark-mode .input-group label { color: #94a3b8; }
+        .input-field { position: relative; }
+        .input-field i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 1rem; }
+        .input-field input { width: 100%; padding: 14px 16px 14px 45px; border: 1px solid #e2e8f0; border-radius: 24px; font-family: inherit; font-size: 0.95rem; background: #fafbfc; }
+        body.dark-mode .input-field input { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .submit-btn { width: 100%; padding: 14px; border: none; border-radius: 40px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 8px; background: #6366f1; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .submit-btn:hover { background: #4f46e5; transform: translateY(-2px); }
+        .message { margin-top: 16px; text-align: center; font-size: 0.8rem; padding: 10px; border-radius: 20px; display: none; }
+        .message.error { background: #fee2e2; color: #dc2626; }
+        .message.success { background: #dcfce7; color: #16a34a; }
+        .message.show { display: block; }
+        .divider { text-align: center; margin: 24px 0 16px; position: relative; }
+        .divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #e2e8f0; }
+        .divider span { background: white; padding: 0 12px; font-size: 0.75rem; color: #94a3b8; position: relative; z-index: 1; }
+        body.dark-mode .divider span { background: #1e293b; }
+        .demo-account { text-align: center; margin-top: 16px; }
+        .demo-account button { background: none; border: none; color: #6366f1; font-weight: 600; cursor: pointer; }
+        .app-container { max-width: 100%; margin: 0 auto; padding: 20px; padding-bottom: 80px; display: none; }
+        .app-container.visible { display: block; animation: fadeInUp 0.6s ease; }
+        .sidebar { position: fixed; top: 0; right: -100%; width: 85%; max-width: 340px; height: 100%; background: white; z-index: 2000; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: -5px 0 40px rgba(0, 0, 0, 0.2); overflow-y: auto; }
+        body.dark-mode .sidebar { background: #1e293b; }
+        .sidebar.open { right: 0; }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1999; display: none; backdrop-filter: blur(4px); }
+        .sidebar-overlay.active { display: block; }
+        .sidebar-header { padding: 32px 20px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; text-align: center; }
+        .sidebar-header .avatar { width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 40px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-size: 2.2rem; }
+        .sidebar-header h3 { font-size: 1.3rem; margin-bottom: 4px; cursor: pointer; }
+        .sidebar-header .edit-name { font-size: 0.7rem; opacity: 0.8; cursor: pointer; margin-top: 6px; display: inline-block; padding: 4px 12px; background: rgba(255,255,255,0.2); border-radius: 20px; }
+        .sidebar-menu { padding: 16px 0; }
+        .sidebar-item { display: flex; align-items: center; gap: 14px; padding: 14px 20px; cursor: pointer; transition: all 0.3s ease; color: #334155; font-weight: 500; }
+        body.dark-mode .sidebar-item { color: #cbd5e1; }
+        .sidebar-item:hover { background: #f1f5f9; transform: translateX(5px); }
+        .sidebar-item i { width: 28px; font-size: 1.2rem; color: #6366f1; }
+        .sidebar-item.locked { opacity: 0.6; }
+        .sidebar-item.locked::after { content: '\f023'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; right: 20px; font-size: 0.8rem; color: #94a3b8; }
+        .sidebar-divider { height: 1px; background: #e2e8f0; margin: 12px 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+        .logo h1 { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .logo p { font-size: 0.7rem; color: #64748b; margin-top: 2px; }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .theme-toggle, .profile-btn, .logout-btn { background: white; padding: 8px 14px; border-radius: 40px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 8px; border: 1px solid #e2e8f0; transition: all 0.3s ease; font-weight: 500; }
+        body.dark-mode .theme-toggle, body.dark-mode .profile-btn, body.dark-mode .logout-btn { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+        .logout-btn { color: #ef4444; }
+        .menu-icon { background: white; width: 42px; height: 42px; border-radius: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid #e2e8f0; transition: all 0.3s ease; font-size: 1.2rem; }
+        body.dark-mode .menu-icon { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+        .stat-card { background: white; border-radius: 20px; padding: 16px 12px; text-align: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); border: 1px solid rgba(99, 102, 241, 0.1); }
+        body.dark-mode .stat-card { background: #1e293b; border-color: #334155; }
+        .stat-card .value { font-size: 1.5rem; font-weight: 800; color: #6366f1; }
+        .stat-card .label { font-size: 0.7rem; color: #64748b; margin-top: 4px; }
+        .welcome-banner { background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 24px; padding: 24px 20px; margin-bottom: 28px; color: white; position: relative; overflow: hidden; }
+        .welcome-banner::before { content: ''; position: absolute; top: -50%; right: -20%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(255,255,255,0.15), transparent); border-radius: 50%; animation: pulse 4s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+        .action-banners { margin-top: 8px; }
+        .action-banner { background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 24px; padding: 14px 18px; margin-bottom: 14px; color: white; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .action-banner.music { background: linear-gradient(135deg, #8b5cf6, #6366f1); }
+        .action-banner:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); }
+        .action-banner .icon { width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .action-banner .text h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 2px; }
+        .action-banner .text p { font-size: 0.65rem; opacity: 0.8; }
+        .quick-actions { display: flex; gap: 10px; margin-bottom: 28px; }
+        .quick-btn { flex: 1; background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
+        body.dark-mode .quick-btn { background: #1e293b; border-color: #334155; }
+        .quick-btn:hover { transform: translateY(-2px); border-color: #6366f1; }
+        .quick-btn i { font-size: 1.1rem; color: #6366f1; margin-bottom: 4px; display: block; }
+        .sections-section { margin-bottom: 28px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .section-header h3 { font-size: 1rem; font-weight: 700; }
+        .back-btn { background: none; border: none; color: #6366f1; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .sections-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+        .subject-card, .topic-card, .subtopic-card { background: white; border-radius: 20px; padding: 16px 12px; text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #e2e8f0; }
+        body.dark-mode .subject-card, body.dark-mode .topic-card, body.dark-mode .subtopic-card { background: #1e293b; border-color: #334155; }
+        .subject-card:hover, .topic-card:hover, .subtopic-card:hover { transform: translateY(-4px); border-color: #6366f1; }
+        .subject-icon, .topic-icon, .subtopic-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #eef2ff, #e0e7ff); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 1.4rem; color: #6366f1; }
+        body.dark-mode .subject-icon, body.dark-mode .topic-icon, body.dark-mode .subtopic-icon { background: #334155; }
+        .subject-name, .topic-name, .subtopic-name { font-weight: 600; font-size: 0.85rem; margin-bottom: 4px; text-transform: capitalize; }
+        .subject-count, .topic-count, .subtopic-count { font-size: 0.6rem; color: #64748b; }
+        .start-quiz-btn { background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 14px 20px; border: none; border-radius: 50px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; margin-top: 8px; margin-bottom: 20px; }
+        .quiz-container { background: white; border-radius: 28px; padding: 24px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); margin-bottom: 16px; }
+        body.dark-mode .quiz-container { background: #1e293b; }
+        .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+        .quiz-progress { font-weight: 600; color: #6366f1; background: #eef2ff; padding: 6px 14px; border-radius: 30px; font-size: 0.8rem; }
+        .quiz-header-actions { display: flex; gap: 8px; align-items: center; }
+        .zoom-btn, .clear-btn { background: none; border: none; font-size: 1rem; cursor: pointer; padding: 6px 10px; border-radius: 30px; color: #6366f1; transition: all 0.2s ease; }
+        .zoom-btn:hover, .clear-btn:hover { background: rgba(99, 102, 241, 0.1); }
+        .clear-btn { color: #ef4444; }
+        .clear-btn:hover { background: rgba(239, 68, 68, 0.1); }
+        .bookmark-toggle { background: none; border: none; font-size: 0.9rem; cursor: pointer; color: #cbd5e1; padding: 6px 12px; border-radius: 30px; }
+        .bookmark-toggle.active { color: #f59e0b; background: #f59e0b10; }
+        .timer-text { font-size: 0.75rem; color: #6366f1; margin-bottom: 16px; font-weight: 500; }
+        .quiz-time-limit { margin-bottom: 12px; font-size: 0.7rem; color: #64748b; }
+        .question-text { font-size: 1rem; font-weight: 700; line-height: 1.45; margin-bottom: 24px; transition: font-size 0.2s ease; }
+        .options-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; transition: all 0.2s ease; }
+        .quiz-option { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1.5px solid #e2e8f0; border-radius: 16px; cursor: pointer; background: #fafbfc; transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1); }
+        body.dark-mode .quiz-option { background: #0f172a; border-color: #334155; }
+        .quiz-option:hover { border-color: #6366f1; transform: translateX(3px); }
+        .quiz-option.selected { border-color: #6366f1; background: #eef2ff; transform: translateY(-2px) scale(1.02); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2); }
+        body.dark-mode .quiz-option.selected { background: #6366f120; }
+        .quiz-option input { width: 18px; height: 18px; cursor: pointer; accent-color: #6366f1; }
+        .quiz-option label { flex: 1; cursor: pointer; font-weight: 500; font-size: 0.9rem; }
+        .quiz-nav { display: flex; gap: 10px; margin-bottom: 16px; }
+        .nav-btn-quiz { padding: 10px 18px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; font-size: 0.8rem; flex: 1; }
+        .nav-prev { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+        .nav-next, .nav-submit { background: #6366f1; color: white; }
+        .nav-submit { background: #10b981; }
+        .quit-quiz-btn { width: 100%; padding: 10px; border-radius: 40px; background: white; border: 1px solid #e2e8f0; color: #ef4444; font-weight: 500; font-size: 0.8rem; cursor: pointer; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .swipe-hint { text-align: center; font-size: 0.6rem; color: #94a3b8; margin-top: 16px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+        .floating-palette { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+        .palette-toggle { width: 52px; height: 52px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 26px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); cursor: pointer; border: none; }
+        .palette-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); z-index: 2100; justify-content: center; align-items: center; }
+        .palette-modal-content { background: white; border-radius: 28px; width: 90%; max-width: 340px; padding: 24px; }
+        body.dark-mode .palette-modal-content { background: #1e293b; }
+        .palette-grid-modal { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 16px 0; }
+        .palette-item-modal { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 12px; cursor: pointer; font-weight: 600; background: #f1f5f9; font-size: 0.85rem; }
+        .palette-item-modal.answered { background: #10b981; color: white; }
+        .palette-item-modal.bookmarked { background: #f59e0b; color: white; }
+        .palette-item-modal.current { border: 2px solid #6366f1; }
+        .submit-confirm-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 2500; justify-content: center; align-items: center; }
+        .submit-confirm-card { background: white; border-radius: 32px; width: 85%; max-width: 320px; padding: 28px; text-align: center; }
+        body.dark-mode .submit-confirm-card { background: #1e293b; }
+        .submit-confirm-icon { width: 60px; height: 60px; background: #fef3c7; border-radius: 30px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 2rem; color: #f59e0b; }
+        .result-page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 3000; overflow-y: auto; }
+        body.dark-mode .result-page { background: #0f172a; }
+        .result-container { max-width: 500px; margin: 0 auto; padding: 40px 24px; text-align: center; }
+        .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .result-header h2 { font-size: 1.5rem; }
+        .result-theme-toggle { background: rgba(0,0,0,0.05); padding: 8px 12px; border-radius: 40px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.8rem; transition: all 0.3s ease; }
+        body.dark-mode .result-theme-toggle { background: rgba(255,255,255,0.1); }
+        .score-circle-container { position: relative; width: 160px; height: 160px; margin: 0 auto 24px; }
+        .score-circle-bg { width: 100%; height: 100%; border-radius: 50%; background: #e2e8f0; position: absolute; }
+        .score-circle-progress { width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(#6366f1 0deg, #e2e8f0 0deg); position: absolute; transition: all 1s ease; }
+        .score-inner { position: absolute; top: 12px; left: 12px; right: 12px; bottom: 12px; background: white; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        body.dark-mode .score-inner { background: #0f172a; }
+        .score-percentage { font-size: 1.8rem; font-weight: 800; color: #6366f1; }
+        .result-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 24px; }
+        .result-stat-card { background: #f8fafc; border-radius: 20px; padding: 12px 8px; text-align: center; }
+        body.dark-mode .result-stat-card { background: #334155; }
+        .result-stat-value { font-size: 1.4rem; font-weight: 800; }
+        .result-stat-value.correct { color: #10b981; }
+        .result-stat-value.wrong { color: #ef4444; }
+        .result-stat-value.unattempted { color: #f59e0b; }
+        .result-stat-value.total { color: #6366f1; }
+        .result-stat-label { font-size: 0.65rem; color: #64748b; }
+        body.dark-mode .result-stat-label { color: #94a3b8; }
+        .time-taken { margin: 16px 0; padding: 12px; background: #f1f5f9; border-radius: 20px; font-size: 0.9rem; font-weight: 600; color: #6366f1; }
+        body.dark-mode .time-taken { background: #334155; }
+        .result-actions { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+        .result-btn { flex: 1; padding: 10px; border-radius: 40px; font-weight: 600; font-size: 0.75rem; cursor: pointer; border: none; min-width: 80px; }
+        .result-btn-primary { background: #6366f1; color: white; }
+        .result-btn-warning { background: #f59e0b; color: white; }
+        .result-btn-danger { background: #ef4444; color: white; }
+        .result-btn-outline { background: transparent; border: 1px solid #e2e8f0; color: #475569; }
+        body.dark-mode .result-btn-outline { border-color: #334155; color: #cbd5e1; }
+        .review-section { margin-top: 24px; text-align: left; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+        .review-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .review-list { max-height: 300px; overflow-y: auto; }
+        .review-item { padding: 12px; border-radius: 14px; margin-bottom: 10px; }
+        .review-item.correct { background: #dcfce7; border-left: 3px solid #10b981; }
+        .review-item.wrong { background: #fee2e2; border-left: 3px solid #ef4444; }
+        .review-item.unattempted { background: #fef3c7; border-left: 3px solid #f59e0b; }
+        body.dark-mode .review-item.correct { background: #064e3b; }
+        body.dark-mode .review-item.wrong { background: #7f1d1d; }
+        body.dark-mode .review-item.unattempted { background: #78350f; }
+        .review-question { font-weight: 600; font-size: 0.8rem; margin-bottom: 8px; }
+        .review-answer { font-size: 0.7rem; padding: 6px 10px; border-radius: 10px; margin-top: 6px; }
+        .review-answer.user-wrong { background: #fecaca; color: #991b1b; }
+        .review-answer.correct-answer { background: #bbf7d0; color: #166534; }
+        .review-answer.unattempted-show { background: #fde68a; color: #92400e; }
+        body.dark-mode .review-answer.user-wrong { background: #7f1d1d; color: #fecaca; }
+        body.dark-mode .review-answer.correct-answer { background: #064e3b; color: #bbf7d0; }
+        body.dark-mode .review-answer.unattempted-show { background: #78350f; color: #fde68a; }
+        .add-question-panel { background: white; border-radius: 28px; padding: 24px; max-width: 500px; margin: 20px auto; }
+        body.dark-mode .add-question-panel { background: #1e293b; }
+        .add-question-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: #6366f1; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 0.7rem; font-weight: 600; color: #64748b; margin-bottom: 6px; }
+        .form-group select, .form-group input, .form-group textarea { width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 16px; font-family: inherit; font-size: 0.85rem; background: #fafbfc; }
+        body.dark-mode .form-group select, body.dark-mode .form-group input, body.dark-mode .form-group textarea { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+        .add-question-actions { display: flex; gap: 12px; margin-top: 8px; }
+        .add-question-btn { flex: 1; padding: 12px; border-radius: 40px; font-weight: 600; cursor: pointer; border: none; }
+        .add-question-btn-primary { background: #6366f1; color: white; }
+        .add-question-btn-secondary { background: transparent; border: 1px solid #e2e8f0; color: #475569; }
+        .edit-topics-panel { background: white; border-radius: 28px; padding: 24px; max-width: 500px; margin: 20px auto; }
+        body.dark-mode .edit-topics-panel { background: #1e293b; }
+        .edit-topics-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8fafc; border-radius: 16px; margin-bottom: 10px; }
+        body.dark-mode .edit-topics-item { background: #0f172a; }
+        .json-import-area { margin-top: 16px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+        .json-import-area textarea { width: 100%; padding: 12px; border-radius: 16px; border: 1px solid #e2e8f0; font-family: monospace; font-size: 0.8rem; background: #fafbfc; margin-bottom: 12px; }
+        body.dark-mode .json-import-area textarea { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .hidden { display: none; }
+        .mt-2 { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading Quizify...👇</div>
+        <div class="loading-subtext">Initializing your quiz experience💤</div>
+    </div>
+
+    <div class="login-container" id="loginContainer">
+        <div class="auth-card">
+            <div class="logo-section">
+                <div class="logo-icon"><i class="fas fa-brain"></i></div>
+                <h1>QUIZIFY</h1>
+                <p>Test Your Knowledge</p>
+            </div>
+            <div class="auth-tabs">
+                <button class="tab-btn active" id="loginTabBtn" onclick="switchAuthTab('login')">Login</button>
+                <button class="tab-btn" id="registerTabBtn" onclick="switchAuthTab('register')">Register</button>
+            </div>
+            <div id="loginForm" class="auth-form active">
+                <div class="input-group"><label>Email</label><div class="input-field"><i class="fas fa-envelope"></i><input type="email" id="loginEmail" placeholder="Enter your email"></div></div>
+                <div class="input-group"><label>Password</label><div class="input-field"><i class="fas fa-lock"></i><input type="password" id="loginPassword" placeholder="Enter your password"></div></div>
+                <button class="submit-btn" onclick="handleLogin()"><i class="fas fa-arrow-right-to-bracket"></i> Login</button>
+            </div>
+            <div id="registerForm" class="auth-form">
+                <div class="input-group"><label>Username</label><div class="input-field"><i class="fas fa-user"></i><input type="text" id="regUsername" placeholder="Choose a username"></div></div>
+                <div class="input-group"><label>Email</label><div class="input-field"><i class="fas fa-envelope"></i><input type="email" id="regEmail" placeholder="Enter your email"></div></div>
+                <div class="input-group"><label>Password</label><div class="input-field"><i class="fas fa-lock"></i><input type="password" id="regPassword" placeholder="Create a password"></div></div>
+                <div class="input-group"><label>Confirm Password</label><div class="input-field"><i class="fas fa-check-circle"></i><input type="password" id="regConfirmPassword" placeholder="Confirm your password"></div></div>
+                <button class="submit-btn" onclick="handleRegister()"><i class="fas fa-user-plus"></i> Create Account</button>
+            </div>
+            <div id="authMessage" class="message"></div>
+            <div class="divider"><span>or continue with</span></div>
+            <div class="demo-account"><button onclick="useDemoAccount()">Use Demo Account</button><p style="font-size:0.7rem; margin-top:4px;">demo@quizify.com / demo123</p></div>
+        </div>
+    </div>
+
+    <div class="app-container" id="mainAppContainer">
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header"><div class="avatar"><i class="fas fa-user-graduate"></i></div><h3 id="sidebarUserName" onclick="editUserName()">Quizify User <i class="fas fa-pen" style="font-size: 0.7rem;"></i></h3><div class="edit-name" onclick="editUserName()">✎ Edit Name</div></div>
+            <div class="sidebar-menu">
+                <div class="sidebar-item" onclick="showProfileModal()"><i class="fas fa-user-circle"></i><span>My Profile</span></div>
+                <div class="sidebar-item" onclick="showAboutApp()"><i class="fas fa-info-circle"></i><span>About App</span></div>
+                <div class="sidebar-item" onclick="showAboutDeveloper()"><i class="fas fa-user-graduate"></i><span>About Developer</span></div>
+                <div class="sidebar-divider"></div>
+                <div class="sidebar-item locked" id="sidebarAddQs" onclick="checkAdminAndShow('add-question')"><i class="fas fa-plus-circle"></i><span>Add Questions</span></div>
+                <div class="sidebar-item locked" id="sidebarAddTopic" onclick="checkAdminAndShow('add-topic')"><i class="fas fa-tag"></i><span>Add Topic</span></div>
+                <div class="sidebar-item locked" id="sidebarAddSubTopic" onclick="checkAdminAndShow('add-subtopic')"><i class="fas fa-layer-group"></i><span>Add Sub-Topic</span></div>
+                <div class="sidebar-item locked" id="sidebarEditTopics" onclick="checkAdminAndShow('edit-topics')"><i class="fas fa-edit"></i><span>Edit Topics/Sub-Topics</span></div>
+                <div class="sidebar-item locked" id="sidebarSettings" onclick="checkAdminAndShow('settings')"><i class="fas fa-cog"></i><span>Settings & Backup</span></div>
+                <div class="sidebar-item locked" id="sidebarSections" onclick="checkAdminAndShow('sections-edit')"><i class="fas fa-edit"></i><span>Edit Sections</span></div>
+                <div class="sidebar-divider"></div>
+                <div class="sidebar-item" onclick="showAdminLogin()"><i class="fas fa-shield-alt"></i><span>Admin Unlock</span></div>
+                <div class="sidebar-divider"></div>
+                <div class="sidebar-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></div>
+            </div>
+        </div>
+
+        <div class="header">
+            <div class="logo"><h1><i class="fas fa-brain"></i> Quizify</h1><p>Test Your Knowledge</p></div>
+            <div class="header-actions">
+                <div class="profile-btn" onclick="showProfileModal()"><i class="fas fa-user"></i> <span id="headerUserName">Profile</span></div>
+                <div class="theme-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></div>
+                <div class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+                <div class="menu-icon" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card"><div class="value" id="totalQsCount">0</div><div class="label">Questions</div></div>
+            <div class="stat-card"><div class="value" id="testsCompleted">0</div><div class="label">Tests</div></div>
+            <div class="stat-card"><div class="value" id="bookmarkedCount">0</div><div class="label">Saved</div></div>
+        </div>
+
+        <div class="welcome-banner"><h2 id="welcomeMessage">Welcome back! 👋</h2><p>Ready to challenge yourself? Choose a subject and start learning!</p></div>
+
+        <div class="quick-actions">
+            <div class="quick-btn" onclick="openQuizSetup()"><i class="fas fa-rocket"></i><span>Quick Quiz</span></div>
+            <div class="quick-btn" onclick="showRandomQuiz()"><i class="fas fa-shuffle"></i><span>Random</span></div>
+        </div>
+
+        <div class="sections-section" id="subjectsSection">
+            <div class="section-header"><h3><i class="fas fa-layer-group"></i> Subjects</h3></div>
+            <div class="sections-grid" id="sectionsGrid"></div>
+        </div>
+
+        <div class="sections-section hidden" id="topicsSection">
+            <div class="section-header"><button class="back-btn" onclick="backToSubjects()"><i class="fas fa-arrow-left"></i> Back to Subjects</button><h3 id="currentSubjectTitle"></h3></div>
+            <div class="sections-grid" id="topicsGrid"></div>
+        </div>
+
+        <div class="sections-section hidden" id="subtopicsSection">
+            <div class="section-header"><button class="back-btn" onclick="backToTopics()"><i class="fas fa-arrow-left"></i> Back to Topics</button><h3 id="currentTopicTitle"></h3></div>
+            <div class="sections-grid" id="subtopicsGrid"></div>
+        </div>
+
+        <button class="start-quiz-btn" onclick="openQuizSetup()"><i class="fas fa-play-circle"></i> Start Custom Quiz</button>
+
+        <div class="action-banners">
+            <div class="action-banner" onclick="showAdminLogin()">
+                <div class="icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="text"><h4>☠️ADMIN ACCESS ONLY🙃</h4><p>Click to unlock admin features</p></div>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="action-banner music" onclick="window.open('https://wayymusic.vercel.app', '_blank')">
+                <div class="icon"><i class="fas fa-music"></i></div>
+                <div class="text"><h4>💤Waymusic🌚</h4><p>Listen to amazing music( My first project)</p></div>
+                <i class="fas fa-external-link-alt"></i>
+            </div>
+            <div class="action-banner" onclick="showAboutDeveloper()">
+                <div class="icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="text"><h4>👨‍💻 About Developer</h4><p>Know the creator of Quizify</p></div>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+        </div>
+    </div>
+
+    <div id="quizSetupModal" class="palette-modal">
+        <div class="palette-modal-content">
+            <div class="text-center"><i class="fas fa-sliders-h" style="font-size:2rem; color:#6366f1;"></i><h3 style="margin-top:8px;">Quiz Setup</h3></div>
+            <div class="form-group"><label>Subject / Topic / Sub-Topic</label><select id="quizSectionModal"><option value="all">All Subjects</option></select></div>
+            <div class="form-group"><label>Number of Questions</label><select id="quizQtyModal"><option value="30">30</option><option value="50" selected>50</option><option value="75">75</option><option value="200">200</option></select></div>
+            <div class="form-group"><label>Timer per Question</label><select id="quizTimerModal"><option value="0">No Timer</option><option value="15">15s</option><option value="30">30s</option><option value="60">60s</option></select></div>
+            <div class="form-group"><label>Quiz Time Limit</label><select id="quizTimeLimitModal"><option value="0">No Time Limit</option><option value="600">10 Minutes</option><option value="1500">25 Minutes</option><option value="3600">01Hours</option></select></div>
+            <div class="add-question-actions"><button class="add-question-btn add-question-btn-secondary" onclick="closeQuizSetup()">Cancel</button><button class="add-question-btn add-question-btn-primary" onclick="startQuizFromModal()">Start Quiz</button></div>
+        </div>
+    </div>
+
+    <div id="active-quiz" class="hidden" style="display: none;">
+        <div class="quiz-container" id="quizContainer">
+            <div class="quiz-header">
+                <span class="quiz-progress" id="quizProgress">1/10</span>
+                <div class="quiz-header-actions">
+                    <button class="zoom-btn" onclick="zoomIn()" title="Zoom In"><i class="fas fa-search-plus"></i></button>
+                    <button class="zoom-btn" onclick="zoomOut()" title="Zoom Out"><i class="fas fa-search-minus"></i></button>
+                    <button class="clear-btn" onclick="clearCurrentResponse()" title="Clear Response"><i class="fas fa-eraser"></i></button>
+                    <button class="theme-toggle" onclick="toggleDarkMode()" style="background: none; border: none; font-size: 1rem; cursor: pointer; padding: 6px 10px; border-radius: 30px; color: #6366f1;"><i class="fas fa-moon"></i></button>
+                    <button class="bookmark-toggle" id="quizBookmarkBtn" onclick="toggleQuizBookmark()"><i class="far fa-bookmark"></i> Bookmark</button>
+                </div>
+            </div>
+            <div id="timerDisplay" class="timer-text"></div>
+            <div id="quizTimeLimitDisplay" class="quiz-time-limit"></div>
+            <div class="question-text" id="quizQuestion"></div>
+            <div class="options-list" id="quizOptions"></div>
+            <div class="quiz-nav">
+                <button class="nav-btn-quiz nav-prev" onclick="prevQuizQuestion()"><i class="fas fa-arrow-left"></i> Previous</button>
+                <button class="nav-btn-quiz nav-next" onclick="nextQuizQuestion()">Next <i class="fas fa-arrow-right"></i></button>
+                <button class="nav-btn-quiz nav-submit" onclick="showSubmitConfirm()">Submit</button>
+            </div>
+            <div class="swipe-hint"><i class="fas fa-arrows-alt-h"></i> Swipe left/right to navigate</div>
+        </div>
+        <button class="quit-quiz-btn" onclick="confirmQuit()"><i class="fas fa-times-circle"></i> Quit Quiz</button>
+        <div class="floating-palette" id="floatingPalette"><button class="palette-toggle" onclick="openPaletteModal()"><i class="fas fa-book-open"></i></button></div>
+    </div>
+
+    <div id="paletteModal" class="palette-modal">
+        <div class="palette-modal-content">
+            <div style="display:flex; justify-content:space-between;"><span style="font-weight:600;"><i class="fas fa-th"></i> Questions</span><button onclick="closePaletteModal()" style="background:none; border:none; font-size:1.2rem;">&times;</button></div>
+            <div id="paletteGridModal" class="palette-grid-modal"></div>
+            <button class="add-question-btn add-question-btn-primary" onclick="closePaletteModal(); showSubmitConfirm();" style="width:100%;">Submit Quiz</button>
+        </div>
+    </div>
+
+    <div id="submitConfirmModal" class="palette-modal">
+        <div class="palette-modal-content" style="text-align:center;">
+            <div class="submit-confirm-icon"><i class="fas fa-question-circle"></i></div>
+            <h3>Submit Quiz?</h3>
+            <p>You cannot change answers after submission.</p>
+            <div class="add-question-actions"><button class="add-question-btn add-question-btn-secondary" onclick="closeSubmitConfirm()">Cancel</button><button class="add-question-btn add-question-btn-primary" onclick="submitQuizResult()" style="background:#10b981;">Submit</button></div>
+        </div>
+    </div>
+
+    <div id="add-question" class="hidden" style="display: none;">
+        <div class="add-question-panel">
+            <div class="add-question-title"><i class="fas fa-plus-circle"></i> Add New Question</div>
+            <div class="form-group"><label>Section</label><select id="newQsSection" onchange="updateTopicOptions()"></select></div>
+            <div class="form-group"><label>Topic</label><select id="newQsTopic" onchange="updateSubTopicOptions()"></select></div>
+            <div class="form-group"><label>Sub-Topic</label><select id="newQsSubTopic"><option value="">Select Sub-Topic</option></select></div>
+            <div class="form-group"><textarea id="newQsText" placeholder="Write your question here..." rows="3"></textarea></div>
+            <div class="options-grid"><input type="text" id="optA" placeholder="A"><input type="text" id="optB" placeholder="B"><input type="text" id="optC" placeholder="C"><input type="text" id="optD" placeholder="D"></div>
+            <div class="form-group"><label>Correct Answer</label><select id="correctOpt"><option value="1">A</option><option value="2">B</option><option value="3">C</option><option value="4">D</option></select></div>
+            <div class="form-group"><input type="text" id="explanation" placeholder="Explanation"></div>
+            <div class="add-question-actions"><button class="add-question-btn add-question-btn-primary" onclick="saveNewQuestion()">Save</button><button class="add-question-btn add-question-btn-secondary" onclick="backToDashboard()">Back</button></div>
+        </div>
+    </div>
+
+    <div id="add-topic" class="hidden" style="display: none;">
+        <div class="add-question-panel">
+            <div class="add-question-title"><i class="fas fa-tag"></i> Add New Topic</div>
+            <div class="form-group"><label>Select Section</label><select id="topicSectionSelect"></select></div>
+            <div class="form-group"><input type="text" id="newTopicName" placeholder="Topic name"></div>
+            <div class="add-question-actions"><button class="add-question-btn add-question-btn-primary" onclick="saveNewTopic()">Add</button><button class="add-question-btn add-question-btn-secondary" onclick="backToDashboard()">Back</button></div>
+        </div>
+    </div>
+
+    <div id="add-subtopic" class="hidden" style="display: none;">
+        <div class="add-question-panel">
+            <div class="add-question-title"><i class="fas fa-layer-group"></i> Add New Sub-Topic</div>
+            <div class="form-group"><label>Select Section</label><select id="subtopicSectionSelect" onchange="loadTopicsForSubtopic()"></select></div>
+            <div class="form-group"><label>Select Topic</label><select id="subtopicTopicSelect"></select></div>
+            <div class="form-group"><input type="text" id="newSubTopicName" placeholder="Sub-Topic name"></div>
+            <div class="add-question-actions"><button class="add-question-btn add-question-btn-primary" onclick="saveNewSubTopic()">Add</button><button class="add-question-btn add-question-btn-secondary" onclick="backToDashboard()">Back</button></div>
+        </div>
+    </div>
+
+    <div id="edit-topics" class="hidden" style="display: none;">
+        <div class="edit-topics-panel">
+            <div class="add-question-title"><i class="fas fa-edit"></i> Edit Topics & Sub-Topics</div>
+            <div id="editTopicsList"></div>
+            <button class="add-question-btn add-question-btn-secondary mt-2" onclick="backToDashboard()">Back</button>
+        </div>
+    </div>
+
+    <div id="settings" class="hidden" style="display: none;">
+        <div class="add-question-panel">
+            <div class="add-question-title"><i class="fas fa-cog"></i> Settings & Backup</div>
+            <div class="form-group"><label>Sections & Counts</label><div id="sectionsList" style="display:flex; flex-wrap:wrap; gap:8px;"></div></div>
+            <div class="form-group"><label>Add New Subject</label><div style="display:flex; gap:10px;"><input type="text" id="newSectionName" placeholder="Subject name" style="flex:1;"><button class="add-question-btn add-question-btn-primary" onclick="addNewSection()">Add</button></div></div>
+            <div class="form-group"><label>Data Backup</label>
+                <div class="file-upload-area" onclick="document.getElementById('fileInput').click()" style="background:#f8fafc; border:2px dashed #cbd5e1; border-radius:16px; padding:16px; text-align:center; cursor:pointer; margin-bottom:12px;">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p style="font-size:0.7rem;">Click to select JSON file</p>
+                </div>
+                <input type="file" id="fileInput" accept=".json" style="display:none;" onchange="importFromFile(this)">
+                <div class="json-import-area">
+                    <label style="font-size:0.7rem; font-weight:600;">Or paste JSON code directly:</label>
+                    <textarea id="jsonCodeInput" rows="4" placeholder='[{"section":"general","topic":"Reasoning","subtopic":"Basic","text":"Question?","options":["A","B","C","D"],"correct":0,"explanation":"Explanation"}]'></textarea>
+                    <button class="add-question-btn add-question-btn-primary" onclick="importFromCode()" style="width:100%;">Import from Code</button>
+                </div>
+            </div>
+            <div class="add-question-actions"><button class="add-question-btn add-question-btn-primary" onclick="exportAllData()">Export</button><button class="add-question-btn add-question-btn-secondary" onclick="resetAllData()">Reset</button></div>
+            <button class="add-question-btn add-question-btn-secondary" onclick="backToDashboard()">Back</button>
+        </div>
+    </div>
+
+    <div id="sections-edit" class="hidden" style="display: none;">
+        <div class="add-question-panel"><div class="add-question-title"><i class="fas fa-edit"></i> Edit Sections</div><div id="sectionsEditList"></div><button class="add-question-btn add-question-btn-secondary" onclick="backToDashboard()">Back</button></div>
+    </div>
+
+    <div id="profileModal" class="palette-modal">
+        <div class="palette-modal-content" style="text-align:center;"><i class="fas fa-user-circle" style="font-size:3rem; color:#6366f1;"></i><h3 id="profileUserName">Quizify User</h3><div class="edit-name" onclick="editUserName()" style="margin-bottom:12px; cursor:pointer; color:#6366f1;"><i class="fas fa-pen"></i> Edit Name</div><div style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px;"><div><strong id="profileTotalQs">0</strong><br>Questions</div><div><strong id="profileTests">0</strong><br>Tests</div><div><strong id="profileBookmarks">0</strong><br>Saved</div><div><strong id="profileAccuracy">0</strong><br>Accuracy</div></div><button class="add-question-btn add-question-btn-primary" onclick="closeProfileModal()">Close</button></div>
+    </div>
+
+    <div id="resultPage" class="result-page">
+        <div class="result-container">
+            <div class="result-header">
+                <h2>Quiz Completed! 🎉</h2>
+                <div class="result-theme-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon" id="resultThemeIcon"></i> <span id="resultThemeText">Dark</span></div>
+            </div>
+            <div class="score-circle-container"><div class="score-circle-bg"></div><div class="score-circle-progress" id="circleProgress"></div><div class="score-inner"><span class="score-percentage" id="resultPercentage">0%</span><span>Accuracy</span></div></div>
+            <div class="result-stats">
+                <div class="result-stat-card"><div class="result-stat-value correct" id="resultCorrect">0</div><div class="result-stat-label">Correct</div></div>
+                <div class="result-stat-card"><div class="result-stat-value wrong" id="resultWrong">0</div><div class="result-stat-label">Wrong</div></div>
+                <div class="result-stat-card"><div class="result-stat-value unattempted" id="resultUnattempted">0</div><div class="result-stat-label">Unattempted</div></div>
+                <div class="result-stat-card"><div class="result-stat-value total" id="resultTotal">0</div><div class="result-stat-label">Total</div></div>
+            </div>
+            <div class="time-taken" id="timeTakenDisplay">Time Taken: --:--</div>
+            <div class="result-actions">
+                <button class="result-btn result-btn-primary" onclick="showReview('all')">📋 All</button>
+                <button class="result-btn result-btn-danger" onclick="showReview('wrong')">❌ Wrong</button>
+                <button class="result-btn result-btn-warning" onclick="showReview('unattempted')">⚪ Unattempted</button>
+                <button class="result-btn result-btn-outline" onclick="closeResultPage()">🏠 Home</button>
+            </div>
+            <div id="reviewSection" class="review-section hidden"><div class="review-title" id="reviewTitle"><i class="fas fa-list"></i> Review</div><div id="reviewList" class="review-list"></div></div>
+        </div>
+    </div>
+
+    <div id="adminLoginModal" class="palette-modal">
+        <div class="palette-modal-content" style="text-align:center;"><i class="fas fa-shield-alt" style="font-size:2rem; color:#6366f1;"></i><h3>Admin Access</h3><input type="password" id="adminPasswordInput" placeholder="Password" style="width:100%; padding:12px; margin:12px 0; border-radius:16px;"><button class="add-question-btn add-question-btn-primary" onclick="verifyAdmin()">Unlock</button><button class="add-question-btn add-question-btn-secondary" onclick="closeAdminLogin()">Cancel</button></div>
+    </div>
+
+    <div id="aboutAppModal" class="palette-modal">
+        <div class="palette-modal-content" style="text-align:center;"><i class="fas fa-brain" style="font-size:2rem; color:#6366f1;"></i><h3>Quizify Pro</h3><p>Version 4.0 - 3 Level Hierarchy</p><p>Subjects → Topics → Sub-Topics</p><button class="add-question-btn add-question-btn-primary" onclick="closeAboutAppModal()">Close</button></div>
+    </div>
+
+    <div id="aboutDevModal" class="palette-modal">
+        <div class="palette-modal-content" style="text-align:center;"><div style="width:60px; height:60px; background:linear-gradient(135deg,#6366f1,#8b5cf6); border-radius:30px; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.5rem; color:white;"><i class="fas fa-user-graduate"></i></div><h3>Rohit Yadav</h3><p>Not a Full Stack Developer</p><p>"Making learning accessible just using Ai"</p><button class="add-question-btn add-question-btn-primary" onclick="closeAboutDevModal()">Close</button></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAA8IjjkCEZzN_T1VS7iY1CuoxuFvbkukw",
+            authDomain: "quizify-42c56.firebaseapp.com",
+            databaseURL: "https://quizify-42c56-default-rtdb.firebaseio.com",
+            projectId: "quizify-42c56",
+            storageBucket: "quizify-42c56.firebasestorage.app",
+            messagingSenderId: "386554927886",
+            appId: "1:386554927886:web:5033897d6e83f9b7fc555f",
+            measurementId: "G-YKK264XQTR"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let currentUser = null;
+        let questionsBank = [];
+        let sections = ["general", "polity", "history"];
+        
+        let topicsData = {
+            general: ["Basic Reasoning", "Logical Thinking", "Verbal Ability"],
+            polity: ["Indian Constitution", "Parliament", "Fundamental Rights", "Directive Principles"],
+            history: ["Ancient History", "Medieval History", "Modern History"]
+        };
+        
+        let subtopicsData = {
+            "general_Basic Reasoning": ["Number Series", "Blood Relations", "Coding-Decoding"],
+            "general_Logical Thinking": ["Statements", "Assumptions", "Conclusions"],
+            "general_Verbal Ability": ["Synonyms", "Antonyms", "One Word Substitution"],
+            "polity_Indian Constitution": ["Preamble", "Articles", "Amendments"],
+            "polity_Parliament": ["Lok Sabha", "Rajya Sabha", "President"],
+            "polity_Fundamental Rights": ["Right to Equality", "Right to Freedom", "Right against Exploitation"],
+            "polity_Directive Principles": ["Socialist Principles", "Gandhian Principles", "Liberal Principles"],
+            "history_Ancient History": ["Indus Valley", "Vedic Period", "Mauryan Empire"],
+            "history_Medieval History": ["Delhi Sultanate", "Mughal Empire", "Vijayanagara"],
+            "history_Modern History": ["British Rule", "Freedom Struggle", "Post Independence"]
+        };
+        
+        let nextId = 1;
+        let testsCompleted = 0;
+        let isAdmin = false;
+        let bookmarkedQuestions = [];
+        let currentQuizQuestions = [], quizAnswers = {}, quizBookmarks = {}, currentQuizIndex = 0, quizTimerInterval = null, quizTimeLeft = 0, quizActive = false;
+        let lastQuizResult = { wrongQuestions: [], unattemptedQuestions: [], score: 0, total: 0, unattemptedCount: 0 };
+        let touchStartX = 0, touchEndX = 0;
+        let currentSubject = null, currentTopic = null, currentSubTopic = null;
+        let userName = "Quizify User";
+        let quizStartTime = null;
+        let quizOverallTimeLimit = 0;
+        let quizOverallTimer = null;
+        
+        let currentZoomLevel = 100;
+        const MIN_ZOOM = 80;
+        const MAX_ZOOM = 150;
+        const ZOOM_STEP = 10;
+        
+        // ==================== SAVE APP DATA ====================
+        async function saveAppData() {
+            if (!currentUser) return;
+            try {
+                await setDoc(doc(db, "appData", "sections"), {
+                    sections: sections,
+                    topicsData: topicsData,
+                    subtopicsData: subtopicsData,
+                    lastUpdated: new Date().toISOString(),
+                    updatedBy: currentUser.uid
+                });
+            } catch (error) { console.error("Error saving app data:", error); }
+        }
+        
+        async function loadAppData() {
+            try {
+                const docRef = doc(db, "appData", "sections");
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    sections = data.sections || sections;
+                    topicsData = data.topicsData || topicsData;
+                    subtopicsData = data.subtopicsData || subtopicsData;
+                }
+            } catch (error) { console.error("Error loading app data:", error); }
+        }
+        
+        // ==================== EDIT TOPICS LIST WITH TOPIC EDIT/DELETE ====================
+        function loadEditTopicsList() {
+            const container = document.getElementById('editTopicsList');
+            if (container) {
+                container.innerHTML = '';
+                for (const section of sections) {
+                    const topics = topicsData[section] || [];
+                    if (topics.length > 0) {
+                        const sectionDiv = document.createElement('div');
+                        sectionDiv.innerHTML = `<div style="font-weight:700; margin: 16px 0 8px 0; color:#6366f1;">${section.toUpperCase()}</div>`;
+                        container.appendChild(sectionDiv);
+                        
+                        topics.forEach(topic => {
+                            // Topic Div with Edit and Delete buttons
+                            const topicDiv = document.createElement('div');
+                            topicDiv.style.marginBottom = '8px';
+                            topicDiv.style.background = '#f8fafc';
+                            topicDiv.style.borderRadius = '12px';
+                            topicDiv.style.padding = '8px 12px';
+                            topicDiv.innerHTML = `
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span><i class="fas fa-folder-open"></i> <strong>${topic}</strong></span>
+                                    <div>
+                                        <button onclick="editTopicName('${section}', '${topic}')" style="background:#6366f1; color:white; border:none; padding:4px 12px; border-radius:20px; margin-right:6px; cursor:pointer;"><i class="fas fa-edit"></i> Edit</button>
+                                        <button onclick="deleteTopicName('${section}', '${topic}')" style="background:#ef4444; color:white; border:none; padding:4px 12px; border-radius:20px; cursor:pointer;"><i class="fas fa-trash"></i> Delete</button>
+                                    </div>
+                                </div>
+                            `;
+                            container.appendChild(topicDiv);
+                            
+                            // Sub-Topics under this topic
+                            const subtopics = subtopicsData[`${section}_${topic}`] || [];
+                            subtopics.forEach(subtopic => {
+                                const subDiv = document.createElement('div');
+                                subDiv.className = 'edit-topics-item';
+                                subDiv.style.marginLeft = '20px';
+                                subDiv.innerHTML = `
+                                    <span><i class="fas fa-tag"></i> ${subtopic}</span>
+                                    <div>
+                                        <button onclick="editSubTopic('${section}', '${topic}', '${subtopic}')" style="background:#6366f1; color:white; border:none; padding:6px 12px; border-radius:20px; margin-right:8px; cursor:pointer;"><i class="fas fa-edit"></i></button>
+                                        <button onclick="deleteSubTopic('${section}', '${topic}', '${subtopic}')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:20px; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                `;
+                                container.appendChild(subDiv);
+                            });
+                            
+                            // Add Sub-Topic button
+                            const addSubBtn = document.createElement('button');
+                            addSubBtn.innerHTML = '+ Add Sub-Topic';
+                            addSubBtn.style.marginLeft = '20px';
+                            addSubBtn.style.marginBottom = '12px';
+                            addSubBtn.style.padding = '4px 12px';
+                            addSubBtn.style.borderRadius = '20px';
+                            addSubBtn.style.border = '1px solid #6366f1';
+                            addSubBtn.style.background = 'transparent';
+                            addSubBtn.style.color = '#6366f1';
+                            addSubBtn.style.cursor = 'pointer';
+                            addSubBtn.onclick = () => {
+                                const newName = prompt('Enter sub-topic name:');
+                                if (newName && newName.trim()) {
+                                    const key = `${section}_${topic}`;
+                                    if (!subtopicsData[key]) subtopicsData[key] = [];
+                                    if (!subtopicsData[key].includes(newName.trim())) {
+                                        subtopicsData[key].push(newName.trim());
+                                        saveAppData();
+                                        loadEditTopicsList();
+                                        alert(`Sub-Topic "${newName}" added!`);
+                                    } else {
+                                        alert('Sub-Topic already exists!');
+                                    }
+                                }
+                            };
+                            container.appendChild(addSubBtn);
+                        });
+                    }
+                }
+            }
+        }
+        
+        // ==================== TOPIC EDIT/DELETE FUNCTIONS ====================
+        window.editTopicName = async function(section, oldTopicName) {
+            if (!isAdmin) { alert('🔒 Admin required!'); return; }
+            let newName = prompt('Enter new topic name:', oldTopicName);
+            if (newName && newName !== oldTopicName) {
+                if (topicsData[section] && topicsData[section].includes(newName)) {
+                    alert('Topic with this name already exists!');
+                    return;
+                }
+                const index = topicsData[section].indexOf(oldTopicName);
+                if (index !== -1) {
+                    topicsData[section][index] = newName;
+                    questionsBank.forEach(q => {
+                        if (q.section === section && q.topic === oldTopicName) {
+                            q.topic = newName;
+                        }
+                    });
+                    const oldKey = `${section}_${oldTopicName}`;
+                    const newKey = `${section}_${newName}`;
+                    if (subtopicsData[oldKey]) {
+                        subtopicsData[newKey] = subtopicsData[oldKey];
+                        delete subtopicsData[oldKey];
+                    } else if (!subtopicsData[newKey]) {
+                        subtopicsData[newKey] = [];
+                    }
+                    await saveAppData();
+                    for (const q of questionsBank) {
+                        await setDoc(doc(db, "questions", q.id.toString()), q);
+                    }
+                    await loadQuestionsFromFirestore();
+                    updateSectionsGrid();
+                    updateSectionsList();
+                    populateSelects();
+                    loadEditTopicsList();
+                    alert(`Topic renamed to "${newName}"`);
+                }
+            }
+        };
+        
+        window.deleteTopicName = async function(section, topicName) {
+            if (!isAdmin) { alert('🔒 Admin required!'); return; }
+            if (confirm(`Delete topic "${topicName}"? This will also delete all questions under this topic.`)) {
+                const questionsToDelete = questionsBank.filter(q => q.section === section && q.topic === topicName);
+                for (const q of questionsToDelete) {
+                    await deleteDoc(doc(db, "questions", q.id.toString()));
+                }
+                questionsBank = questionsBank.filter(q => !(q.section === section && q.topic === topicName));
+                if (topicsData[section]) {
+                    topicsData[section] = topicsData[section].filter(t => t !== topicName);
+                }
+                const key = `${section}_${topicName}`;
+                delete subtopicsData[key];
+                await saveAppData();
+                await loadQuestionsFromFirestore();
+                updateSectionsGrid();
+                updateSectionsList();
+                populateSelects();
+                loadEditTopicsList();
+                alert(`Topic "${topicName}" deleted.`);
+            }
+        };
+        
+        // ==================== SUB-TOPIC EDIT/DELETE FUNCTIONS ====================
+        window.editSubTopic = function(section, topic, oldName) {
+            if (!isAdmin) { alert('🔒 Admin required!'); return; }
+            let newName = prompt('Enter new sub-topic name:', oldName);
+            if (newName && newName !== oldName) {
+                const key = `${section}_${topic}`;
+                const index = subtopicsData[key].indexOf(oldName);
+                if (index !== -1) {
+                    subtopicsData[key][index] = newName;
+                    questionsBank.forEach(q => {
+                        if (q.section === section && q.topic === topic && q.subtopic === oldName) {
+                            q.subtopic = newName;
+                        }
+                    });
+                    saveAppData();
+                    updateSectionsGrid();
+                    updateSectionsList();
+                    populateSelects();
+                    loadEditTopicsList();
+                    alert(`Sub-Topic renamed to "${newName}"`);
+                }
+            }
+        };
+        
+        window.deleteSubTopic = function(section, topic, subtopicName) {
+            if (!isAdmin) { alert('🔒 Admin required!'); return; }
+            if (confirm(`Delete sub-topic "${subtopicName}"?`)) {
+                const key = `${section}_${topic}`;
+                if (subtopicsData[key]) {
+                    subtopicsData[key] = subtopicsData[key].filter(st => st !== subtopicName);
+                    questionsBank.forEach(q => {
+                        if (q.section === section && q.topic === topic && q.subtopic === subtopicName) {
+                            q.subtopic = '';
+                        }
+                    });
+                    saveAppData();
+                    updateSectionsGrid();
+                    updateSectionsList();
+                    populateSelects();
+                    loadEditTopicsList();
+                    alert(`Sub-Topic "${subtopicName}" deleted.`);
+                }
+            }
+        };
+        
+        // ==================== UPDATE SUB-TOPIC OPTIONS ====================
+        window.updateSubTopicOptions = function() {
+            const section = document.getElementById('newQsSection').value;
+            const topic = document.getElementById('newQsTopic').value;
+            const subtopicSelect = document.getElementById('newQsSubTopic');
+            if (subtopicSelect && topic) {
+                const key = `${section}_${topic}`;
+                const subtopics = subtopicsData[key] || [];
+                subtopicSelect.innerHTML = '<option value="">Select Sub-Topic</option>' + 
+                    subtopics.map(st => `<option value="${st}">${st}</option>`).join('');
+            }
+        };
+        
+        // ==================== AUTH FUNCTIONS ====================
+        window.switchAuthTab = function(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const loginTab = document.getElementById('loginTabBtn');
+            const registerTab = document.getElementById('registerTabBtn');
+            if (tab === 'login') {
+                loginForm.classList.add('active');
+                registerForm.classList.remove('active');
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+            } else {
+                loginForm.classList.remove('active');
+                registerForm.classList.add('active');
+                loginTab.classList.remove('active');
+                registerTab.classList.add('active');
+            }
+            const msg = document.getElementById('authMessage');
+            msg.classList.remove('show');
+            msg.innerHTML = '';
+        };
+        
+        function showAuthMessage(text, type) {
+            const msg = document.getElementById('authMessage');
+            msg.innerHTML = text;
+            msg.className = `message ${type} show`;
+            setTimeout(() => msg.classList.remove('show'), 3000);
+        }
+        
+        window.handleLogin = async function() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            if (!email || !password) return showAuthMessage('Enter email and password', 'error');
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showAuthMessage('Login successful!', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } catch (error) {
+                showAuthMessage('Invalid email or password', 'error');
+            }
+        };
+        
+        window.handleRegister = async function() {
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirmPassword').value;
+            if (!username || !email || !password || !confirm) return showAuthMessage('Fill all fields', 'error');
+            if (!/^[^\s@]+@([^\s@]+\.)+[^\s@]+$/.test(email)) return showAuthMessage('Invalid email', 'error');
+            if (password.length < 6) return showAuthMessage('Password min 6 chars', 'error');
+            if (password !== confirm) return showAuthMessage('Passwords do not match', 'error');
+            try {
+                const userCred = await createUserWithEmailAndPassword(auth, email, password);
+                await setDoc(doc(db, "users", userCred.user.uid), { userName: username, email, testsCompleted: 0, bookmarkedQuestions: [], quizHistory: [] });
+                showAuthMessage('Account created!', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } catch (error) {
+                showAuthMessage(error.message, 'error');
+            }
+        };
+        
+        window.useDemoAccount = async function() {
+            try {
+                await signInWithEmailAndPassword(auth, "demo@quizify.com", "demo123");
+                showAuthMessage('Demo login!', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } catch (error) {
+                try {
+                    const userCred = await createUserWithEmailAndPassword(auth, "demo@quizify.com", "demo123");
+                    await setDoc(doc(db, "users", userCred.user.uid), { userName: "DemoUser", email: "demo@quizify.com", testsCompleted: 0, bookmarkedQuestions: [], quizHistory: [] });
+                    showAuthMessage('Demo created!', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } catch (e) { showAuthMessage('Demo login failed', 'error'); }
+            }
+        };
+        
+        window.handleLogout = async function() {
+            await signOut(auth);
+            location.reload();
+        };
+        
+        // ==================== LOAD QUESTIONS & DATA ====================
+        async function loadQuestionsFromFirestore() {
+            try {
+                const questionsRef = collection(db, "questions");
+                const querySnapshot = await getDocs(questionsRef);
+                questionsBank = [];
+                querySnapshot.forEach((doc) => {
+                    const q = doc.data();
+                    q.id = parseInt(doc.id);
+                    questionsBank.push(q);
+                    if (q.id >= nextId) nextId = q.id + 1;
+                });
+                if (questionsBank.length === 0) await addDefaultQuestions();
+                updateAllCounters();
+                updateSectionsGrid();
+                updateSectionsList();
+                populateSelects();
+                renderAllQuestions();
+            } catch (error) { console.error(error); }
+        }
+        
+        async function addDefaultQuestions() {
+            const defaultQuestions = [
+                { id: 1, section: "general", topic: "Basic Reasoning", subtopic: "Number Series", text: "Brain : Nerves :: Computer : ?", options: ["Mouse", "Keyboard", "CPU", "Circuit"], correct: 3, explanation: "Brain uses nerves, Computer uses circuits." },
+                { id: 2, section: "general", topic: "Logical Thinking", subtopic: "Statements", text: "If 2 + 3 = 10, 7 + 2 = 63, then 9 + 5 = ?", options: ["126", "140", "98", "70"], correct: 0, explanation: "Pattern: (a+b)×a = result" },
+                { id: 3, section: "polity", topic: "Indian Constitution", subtopic: "Preamble", text: "Who wrote the Indian National Anthem?", options: ["Bankim Chandra", "Rabindranath Tagore", "Sarojini Naidu", "Mahatma Gandhi"], correct: 1, explanation: "Rabindranath Tagore wrote Jana Gana Mana." },
+                { id: 4, section: "history", topic: "Medieval History", subtopic: "Delhi Sultanate", text: "Who was the founder of the Delhi Sultanate?", options: ["Qutb-ud-din Aibak", "Iltutmish", "Alauddin Khilji", "Muhammad Ghori"], correct: 0, explanation: "Qutb-ud-din Aibak was the founder of the Delhi Sultanate." },
+                { id: 5, section: "general", topic: "Verbal Ability", subtopic: "Synonyms", text: "What is 15% of 200?", options: ["20", "25", "30", "35"], correct: 2, explanation: "15% of 200 = 30" }
+            ];
+            for (const q of defaultQuestions) {
+                await setDoc(doc(db, "questions", q.id.toString()), q);
+            }
+            await loadQuestionsFromFirestore();
+        }
+        
+        async function loadUserData(userId) {
+            try {
+                const userRef = doc(db, "users", userId);
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    const data = userSnap.data();
+                    testsCompleted = data.testsCompleted || 0;
+                    bookmarkedQuestions = data.bookmarkedQuestions || [];
+                    userName = data.userName || "Quizify User";
+                    updateAllCounters();
+                    updateUserNameDisplay();
+                } else {
+                    await setDoc(userRef, { userName, testsCompleted: 0, bookmarkedQuestions: [], quizHistory: [] });
+                }
+            } catch (error) { console.error(error); }
+        }
+        
+        async function saveUserData() {
+            if (!currentUser) return;
+            try {
+                await updateDoc(doc(db, "users", currentUser.uid), { userName, testsCompleted, bookmarkedQuestions });
+            } catch (error) { console.error(error); }
+        }
+        
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainAppContainer').style.display = 'block';
+                document.getElementById('mainAppContainer').classList.add('visible');
+                await loadUserData(user.uid);
+                await loadAppData();
+                await loadQuestionsFromFirestore();
+                loadDarkMode();
+                initSwipe();
+                updateResultThemeIcon();
+                hideLoadingScreen();
+            } else {
+                document.getElementById('loginContainer').style.display = 'flex';
+                document.getElementById('mainAppContainer').style.display = 'none';
+                hideLoadingScreen();
+            }
+        });
+        
+        setTimeout(() => { hideLoadingScreen(); }, 3000);
+        
+        function updateResultThemeIcon() {
+            const isDark = document.body.classList.contains('dark-mode');
+            const icon = document.getElementById('resultThemeIcon');
+            const text = document.getElementById('resultThemeText');
+            if (icon && text) {
+                if (isDark) {
+                    icon.className = 'fas fa-sun';
+                    text.innerText = 'Light';
+                } else {
+                    icon.className = 'fas fa-moon';
+                    text.innerText = 'Dark';
+                }
+            }
+        }
+        
+        function updateUserNameDisplay() {
+            document.getElementById('sidebarUserName').innerHTML = userName + ' <i class="fas fa-pen" style="font-size: 0.7rem;"></i>';
+            document.getElementById('headerUserName').innerText = userName.split(' ')[0];
+            document.getElementById('profileUserName').innerText = userName;
+            document.getElementById('welcomeMessage').innerHTML = `Welcome back, ${userName.split(' ')[0]}! 👋`;
+        }
+        
+        window.editUserName = function() {
+            let newName = prompt('Enter your name:', userName);
+            if (newName && newName.trim()) { userName = newName.trim(); updateUserNameDisplay(); saveUserData(); }
+        };
+        
+        function updateAllCounters() {
+            document.getElementById('totalQsCount').innerText = questionsBank.length;
+            document.getElementById('testsCompleted').innerText = testsCompleted;
+            document.getElementById('bookmarkedCount').innerText = bookmarkedQuestions.length;
+            document.getElementById('profileTotalQs').innerText = questionsBank.length;
+            document.getElementById('profileTests').innerText = testsCompleted;
+            document.getElementById('profileBookmarks').innerText = bookmarkedQuestions.length;
+            let acc = testsCompleted > 0 ? Math.floor((testsCompleted * 70) / 100) : 0;
+            document.getElementById('profileAccuracy').innerText = acc + '%';
+        }
+        
+        function updateSectionsGrid() {
+            const container = document.getElementById('sectionsGrid');
+            if (container) {
+                container.innerHTML = sections.map(s => {
+                    const count = questionsBank.filter(q => q.section === s).length;
+                    return `<div class="subject-card" onclick="showTopics('${s}')"><div class="subject-icon"><i class="${getSectionIcon(s)}"></i></div><div class="subject-name">${s.toUpperCase()}</div><div class="subject-count">${count} Questions</div></div>`;
+                }).join('');
+            }
+        }
+        
+        function getSectionIcon(s) {
+            const icons = { general: "fas fa-globe", polity: "fas fa-gavel", history: "fas fa-landmark" };
+            return icons[s] || "fas fa-folder";
+        }
+        
+        function showTopics(section) {
+            currentSubject = section;
+            let topics = topicsData[section] || [];
+            let topicCounts = {};
+            topics.forEach(t => { 
+                topicCounts[t] = questionsBank.filter(q => q.section === section && q.topic === t).length; 
+            });
+            const container = document.getElementById('topicsGrid');
+            if (topics.length === 0) {
+                container.innerHTML = `<div class="topic-card" onclick="showSubTopics('${section}', null)"><div class="topic-icon"><i class="fas fa-folder-open"></i></div><div class="topic-name">All Questions</div><div class="topic-count">${questionsBank.filter(q => q.section === section).length} Questions</div></div>`;
+            } else {
+                container.innerHTML = topics.map(t => `<div class="topic-card" onclick="showSubTopics('${section}', '${t}')"><div class="topic-icon"><i class="fas fa-folder"></i></div><div class="topic-name">${t}</div><div class="topic-count">${topicCounts[t] || 0} Questions</div></div>`).join('');
+            }
+            document.getElementById('currentSubjectTitle').innerHTML = `<i class="${getSectionIcon(section)}"></i> ${section.toUpperCase()} Topics`;
+            document.getElementById('subjectsSection').classList.add('hidden');
+            document.getElementById('topicsSection').classList.remove('hidden');
+            document.getElementById('subtopicsSection').classList.add('hidden');
+        }
+        
+        function showSubTopics(section, topic) {
+            currentSubject = section;
+            currentTopic = topic;
+            
+            let subtopics = [];
+            if (topic) {
+                const key = `${section}_${topic}`;
+                subtopics = subtopicsData[key] || [];
+            }
+            
+            let subtopicCounts = {};
+            if (topic) {
+                subtopics.forEach(st => {
+                    subtopicCounts[st] = questionsBank.filter(q => q.section === section && q.topic === topic && q.subtopic === st).length;
+                });
+            }
+            
+            const container = document.getElementById('subtopicsGrid');
+            if (subtopics.length === 0 && topic) {
+                container.innerHTML = `<div class="subtopic-card" onclick="openTopicQuizSetup('${section}', '${topic}', null)"><div class="subtopic-icon"><i class="fas fa-book-open"></i></div><div class="subtopic-name">All ${topic} Questions</div><div class="subtopic-count">${questionsBank.filter(q => q.section === section && q.topic === topic).length} Questions</div></div>`;
+            } else if (topic) {
+                container.innerHTML = subtopics.map(st => `<div class="subtopic-card" onclick="openTopicQuizSetup('${section}', '${topic}', '${st}')"><div class="subtopic-icon"><i class="fas fa-tag"></i></div><div class="subtopic-name">${st}</div><div class="subtopic-count">${subtopicCounts[st] || 0} Questions</div></div>`).join('');
+            }
+            
+            document.getElementById('currentTopicTitle').innerHTML = `<i class="fas fa-folder-open"></i> ${topic || 'All'} Sub-Topics`;
+            document.getElementById('topicsSection').classList.add('hidden');
+            document.getElementById('subtopicsSection').classList.remove('hidden');
+        }
+        
+        function backToSubjects() {
+            document.getElementById('topicsSection').classList.add('hidden');
+            document.getElementById('subtopicsSection').classList.add('hidden');
+            document.getElementById('subjectsSection').classList.remove('hidden');
+            currentSubject = null;
+            currentTopic = null;
+            currentSubTopic = null;
+        }
+        
+        function backToTopics() {
+            document.getElementById('subtopicsSection').classList.add('hidden');
+            document.getElementById('topicsSection').classList.remove('hidden');
+            currentTopic = null;
+            currentSubTopic = null;
+        }
+        
+        function openTopicQuizSetup(section, topic, subtopic) {
+            currentSubTopic = subtopic;
+            const select = document.getElementById('quizSectionModal');
+            if (subtopic) {
+                select.innerHTML = `<option value="${section}_${topic}_${subtopic}">${section.toUpperCase()} - ${topic} - ${subtopic}</option>`;
+            } else if (topic) {
+                select.innerHTML = `<option value="${section}_${topic}">${section.toUpperCase()} - ${topic}</option>`;
+            } else {
+                select.innerHTML = `<option value="${section}">${section.toUpperCase()}</option>`;
+            }
+            openQuizSetup();
+        }
+        
+        function updateSectionsList() {
+            const container = document.getElementById('sectionsList');
+            if (container) container.innerHTML = sections.map(s => `<span style="background:#f1f5f9; padding:4px 10px; border-radius:20px;">${s.toUpperCase()} (${questionsBank.filter(q => q.section === s).length})</span>`).join('');
+            const editContainer = document.getElementById('sectionsEditList');
+            if (editContainer) {
+                editContainer.innerHTML = sections.map(s => `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f8fafc; border-radius:14px; margin-bottom:8px;"><span><i class="${getSectionIcon(s)}"></i> ${s.toUpperCase()}</span><div><button onclick="editSection('${s}')" style="background:#6366f1; color:white; border:none; padding:4px 10px; border-radius:20px; margin-right:6px;"><i class="fas fa-edit"></i></button><button onclick="deleteSection('${s}')" style="background:#ef4444; color:white; border:none; padding:4px 10px; border-radius:20px;"><i class="fas fa-trash"></i></button></div></div>`).join('');
+            }
+        }
+        
+        function editSection(oldName) {
+            if (!isAdmin) { alert('🔒 Admin required!'); return; }
+            let newName = prompt('New section name:', oldName);
+            if (newName && newName !== oldName) {
+                let idx = sections.indexOf(oldName);
+                if (idx !== -1) {
+                    sections[idx] = newName.toLowerCase();
+                    questionsBank.forEach(q => { if (q.section === oldName) q.section = newName.toLowerCase(); });
+                    topicsData[newName.toLowerCase()] = topicsData[oldName] || [];
+                    delete topicsData[oldName];
+                    
+                    let newSubtopics = {};
+                    for (let key in subtopicsData) {
+                        if (key.startsWith(oldName)) {
+                            let newKey = key.replace(oldName, newName.toLowerCase());
+                            newSubtopics[newKey] = subtopicsData[key];
+                        } else {
+                            newSubtopics[key] = subtopicsData[key];
+                        }
+                    }
+                    subtopicsData = newSubtopics;
+                    saveAppData();
+                    updateSectionsGrid();
+                    updateSectionsList();
+                    populateSelects();
+                    updateTopicOptions();
+                    alert(`Section renamed to "${newName}"`);
+                }
+            }
+        }
+        
+        function deleteSection(sectionName) {
+            if (!isAdmin) { alert('🔒 Admin required!'); return; }
+            if (sectionName === 'general') { alert('Cannot delete default section!'); return; }
+            if (confirm(`Delete "${sectionName}" and all questions?`)) {
+                sections = sections.filter(s => s !== sectionName);
+                questionsBank = questionsBank.filter(q => q.section !== sectionName);
+                delete topicsData[sectionName];
+                
+                for (let key in subtopicsData) {
+                    if (key.startsWith(sectionName)) {
+                        delete subtopicsData[key];
+                    }
+                }
+                saveAppData();
+                updateSectionsGrid();
+                updateSectionsList();
+                populateSelects();
+                updateTopicOptions();
+                renderAllQuestions();
+                alert(`Section "${sectionName}" deleted.`);
+            }
+        }
+        
+        function updateTopicOptions() {
+            const section = document.getElementById('newQsSection').value;
+            const topicSelect = document.getElementById('newQsTopic');
+            if (topicSelect && topicsData[section]) {
+                topicSelect.innerHTML = '<option value="">Select Topic</option>' + topicsData[section].map(t => `<option value="${t}">${t}</option>`).join('');
+                topicSelect.onchange();
+                window.updateSubTopicOptions();
+            }
+        }
+        
+        function loadTopicsForSubtopic() {
+            const section = document.getElementById('subtopicSectionSelect').value;
+            const topicSelect = document.getElementById('subtopicTopicSelect');
+            if (topicSelect && topicsData[section]) {
+                topicSelect.innerHTML = '<option value="">Select Topic</option>' + topicsData[section].map(t => `<option value="${t}">${t}</option>`).join('');
+            }
+        }
+        
+        function populateSelects() {
+            ['quizSectionModal', 'newQsSection', 'topicSectionSelect', 'subtopicSectionSelect'].forEach(id => {
+                const select = document.getElementById(id);
+                if (select) select.innerHTML = sections.map(s => `<option value="${s}">${s.toUpperCase()}</option>`).join('');
+            });
+            updateTopicOptions();
+        }
+        
+        window.addNewSection = async function() {
+            if (!isAdmin) return;
+            let name = document.getElementById('newSectionName').value.trim().toLowerCase();
+            if (name && !sections.includes(name)) {
+                sections.push(name);
+                topicsData[name] = [];
+                await saveAppData();
+                updateSectionsGrid();
+                updateSectionsList();
+                populateSelects();
+                document.getElementById('newSectionName').value = '';
+                alert(`Section "${name}" added and saved!`);
+            }
+        };
+        
+        window.saveNewTopic = async function() {
+            if (!isAdmin) { alert('🔒 Admin required!'); return; }
+            const section = document.getElementById('topicSectionSelect').value;
+            const topicName = document.getElementById('newTopicName').value.trim();
+            if (!topicName) return alert('Enter topic name');
+            if (!topicsData[section]) topicsData[section] = [];
+            if (topicsData[section].includes(topicName)) return alert('Topic already exists!');
+            topicsData[section].push(topicName);
+            const key = `${section}_${topicName}`;
+            if (!subtopicsData[key]) subtopicsData[key] = [];
+            await saveAppData();
+            updateSectionsGrid();
+            updateSectionsList();
+            populateSelects();
+            document.getElementById('newTopicName').value = '';
+            alert(`Topic "${topicName}" added!`);
+            backToDashboard();
+        };
+        
+        window.saveNewSubTopic = async function() {
+            if (!isAdmin) { alert('🔒 Admin required!'); return; }
+            const section = document.getElementById('subtopicSectionSelect').value;
+            const topic = document.getElementById('subtopicTopicSelect').value;
+            const subtopicName = document.getElementById('newSubTopicName').value.trim();
+            if (!section || !topic || !subtopicName) return alert('Fill all fields');
+            const key = `${section}_${topic}`;
+            if (!subtopicsData[key]) subtopicsData[key] = [];
+            if (subtopicsData[key].includes(subtopicName)) return alert('Sub-Topic already exists!');
+            subtopicsData[key].push(subtopicName);
+            await saveAppData();
+            alert(`Sub-Topic "${subtopicName}" added under ${topic}!`);
+            document.getElementById('newSubTopicName').value = '';
+            backToDashboard();
+        };
+        
+        window.saveNewQuestion = async function() {
+            if (!isAdmin) return alert('🔒 Admin required!');
+            let section = document.getElementById('newQsSection').value;
+            let topic = document.getElementById('newQsTopic').value;
+            let subtopic = document.getElementById('newQsSubTopic').value;
+            let text = document.getElementById('newQsText').value;
+            let optA = document.getElementById('optA').value, optB = document.getElementById('optB').value;
+            let optC = document.getElementById('optC').value, optD = document.getElementById('optD').value;
+            let correct = parseInt(document.getElementById('correctOpt').value) - 1;
+            let explanation = document.getElementById('explanation').value || 'No explanation.';
+            if (!text || !optA || !optB || !optC || !optD) return alert('Fill all fields');
+            if (!topic) return alert('Please select a topic');
+            const newId = nextId++;
+            const newQuestion = { id: newId, section, topic, subtopic, text, options: [optA, optB, optC, optD], correct, explanation };
+            await setDoc(doc(db, "questions", newId.toString()), newQuestion);
+            questionsBank.push(newQuestion);
+            await loadQuestionsFromFirestore();
+            document.getElementById('newQsText').value = '';
+            ['optA','optB','optC','optD'].forEach(id => document.getElementById(id).value = '');
+            alert('Question added and saved to cloud!');
+        };
+        
+        // ==================== ZOOM & QUIZ FUNCTIONS ====================
+        window.zoomIn = function() {
+            if (currentZoomLevel + ZOOM_STEP <= MAX_ZOOM) {
+                currentZoomLevel += ZOOM_STEP;
+                applyZoom();
+            }
+        };
+        
+        window.zoomOut = function() {
+            if (currentZoomLevel - ZOOM_STEP >= MIN_ZOOM) {
+                currentZoomLevel -= ZOOM_STEP;
+                applyZoom();
+            }
+        };
+        
+        function applyZoom() {
+            const questionText = document.getElementById('quizQuestion');
+            if (questionText) questionText.style.fontSize = (1 * currentZoomLevel / 100) + 'rem';
+            const optionLabels = document.querySelectorAll('.quiz-option label');
+            optionLabels.forEach(label => label.style.fontSize = (0.9 * currentZoomLevel / 100) + 'rem');
+        }
+        
+        window.clearCurrentResponse = function() {
+            if (quizAnswers[currentQuizIndex] !== undefined) {
+                delete quizAnswers[currentQuizIndex];
+                renderQuizQuestion();
+                showToast('Response cleared!', 'warning');
+            } else {
+                showToast('No response to clear', 'info');
+            }
+        };
+        
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.left = '50%';
+            toast.style.transform = 'translateX(-50%)';
+            toast.style.background = type === 'danger' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#10b981';
+            toast.style.color = 'white';
+            toast.style.padding = '12px 24px';
+            toast.style.borderRadius = '50px';
+            toast.style.zIndex = '10000';
+            toast.style.fontSize = '14px';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+        
+        function hideLoadingScreen() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => { loadingOverlay.style.display = 'none'; }, 500);
+            }
+        }
+        
+        function showRandomQuiz() {
+            let all = [...questionsBank];
+            if (all.length === 0) return alert('No questions!');
+            let shuffled = all.sort(() => 0.5 - Math.random());
+            currentQuizQuestions = shuffled.slice(0, Math.min(10, shuffled.length));
+            startQuizDirect();
+        }
+        
+        function openQuizSetup() {
+            document.getElementById('quizSetupModal').style.display = 'flex';
+            if (!currentSubTopic && !currentTopic && !currentSubject) {
+                const select = document.getElementById('quizSectionModal');
+                let options = '<option value="all">All Subjects</option>';
+                sections.forEach(s => {
+                    options += `<option value="${s}">${s.toUpperCase()}</option>`;
+                    const topics = topicsData[s] || [];
+                    topics.forEach(t => {
+                        options += `<option value="${s}_${t}">${s.toUpperCase()} - ${t}</option>`;
+                        const subtopics = subtopicsData[`${s}_${t}`] || [];
+                        subtopics.forEach(st => {
+                            options += `<option value="${s}_${t}_${st}">${s.toUpperCase()} - ${t} - ${st}</option>`;
+                        });
+                    });
+                });
+                select.innerHTML = options;
+            }
+        }
+        
+        function closeQuizSetup() { document.getElementById('quizSetupModal').style.display = 'none'; }
+        
+        function startQuizFromModal() {
+            const selection = document.getElementById('quizSectionModal').value;
+            let section, topic, subtopic;
+            const parts = selection.split('_');
+            section = parts[0];
+            topic = parts[1] || null;
+            subtopic = parts[2] || null;
+            
+            let count = parseInt(document.getElementById('quizQtyModal').value);
+            let filtered = [];
+            
+            if (section === 'all') {
+                filtered = [...questionsBank];
+            } else if (subtopic) {
+                filtered = questionsBank.filter(q => q.section === section && q.topic === topic && q.subtopic === subtopic);
+            } else if (topic) {
+                filtered = questionsBank.filter(q => q.section === section && q.topic === topic);
+            } else {
+                filtered = questionsBank.filter(q => q.section === section);
+            }
+            
+            if (filtered.length === 0) return alert('No questions!');
+            let shuffled = filtered.sort(() => 0.5 - Math.random());
+            count = Math.min(count, shuffled.length);
+            currentQuizQuestions = shuffled.slice(0, count);
+            quizOverallTimeLimit = parseInt(document.getElementById('quizTimeLimitModal').value);
+            startQuizDirect();
+        }
+        
+        function formatOverallTime(seconds) {
+            if (seconds <= 0) return '00:00:00';
+            const hours = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            if (hours > 0) return `${hours}h ${mins}m ${secs}s`;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        function startQuizDirect() {
+            quizAnswers = {}; quizBookmarks = {}; currentQuizIndex = 0;
+            quizTimeLeft = parseInt(document.getElementById('quizTimerModal').value);
+            quizActive = true;
+            quizStartTime = Date.now();
+            closeQuizSetup();
+            document.getElementById('mainAppContainer').style.display = 'none';
+            document.getElementById('active-quiz').style.display = 'block';
+            document.getElementById('floatingPalette').style.display = 'block';
+            renderQuizQuestion();
+            
+            const timeLimitDisplay = document.getElementById('quizTimeLimitDisplay');
+            if (quizOverallTimeLimit > 0) {
+                timeLimitDisplay.innerHTML = `⏱️ Total Quiz Time: ${formatOverallTime(quizOverallTimeLimit)}`;
+                startOverallTimer();
+            } else {
+                timeLimitDisplay.innerHTML = '';
+            }
+            
+            if (quizTimeLeft > 0) startQuizTimer();
+        }
+        
+        function startOverallTimer() {
+            let timeRemaining = quizOverallTimeLimit;
+            const timeLimitDisplay = document.getElementById('quizTimeLimitDisplay');
+            if (quizOverallTimer) clearInterval(quizOverallTimer);
+            quizOverallTimer = setInterval(() => {
+                if (!quizActive) return;
+                timeRemaining--;
+                if (timeRemaining <= 0) {
+                    clearInterval(quizOverallTimer);
+                    alert('Time limit reached! Submitting quiz...');
+                    submitQuizResult();
+                } else {
+                    timeLimitDisplay.innerHTML = `⏱️ Total Quiz Time: ${formatOverallTime(timeRemaining)}`;
+                }
+            }, 1000);
+        }
+        
+        function formatTime(seconds) {
+            if (seconds <= 0) return '00:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        function formatTimeTaken(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        function renderQuizQuestion() {
+            const q = currentQuizQuestions[currentQuizIndex];
+            document.getElementById('quizProgress').innerHTML = `${currentQuizIndex+1}/${currentQuizQuestions.length}`;
+            document.getElementById('quizQuestion').innerHTML = q.text;
+            const optsHtml = q.options.map((opt, idx) => `<div class="quiz-option ${quizAnswers[currentQuizIndex] === idx ? 'selected' : ''}" onclick="selectQuizOption(${idx})"><input type="radio" name="quizOpt" ${quizAnswers[currentQuizIndex] === idx ? 'checked' : ''}><label>${String.fromCharCode(65+idx)}. ${opt}</label></div>`).join('');
+            document.getElementById('quizOptions').innerHTML = optsHtml;
+            const btn = document.getElementById('quizBookmarkBtn');
+            if (quizBookmarks[currentQuizIndex]) { btn.classList.add('active'); btn.innerHTML = '<i class="fas fa-bookmark"></i>'; }
+            else { btn.classList.remove('active'); btn.innerHTML = '<i class="far fa-bookmark"></i>'; }
+            updatePaletteModal();
+            applyZoom();
+        }
+        
+        function selectQuizOption(opt) { quizAnswers[currentQuizIndex] = opt; renderQuizQuestion(); }
+        function toggleQuizBookmark() { 
+            if (quizBookmarks[currentQuizIndex]) delete quizBookmarks[currentQuizIndex];
+            else quizBookmarks[currentQuizIndex] = true;
+            renderQuizQuestion();
+        }
+        function prevQuizQuestion() { if (currentQuizIndex > 0) { currentQuizIndex--; renderQuizQuestion(); resetQuizTimer(); } }
+        function nextQuizQuestion() { if (currentQuizIndex < currentQuizQuestions.length - 1) { currentQuizIndex++; renderQuizQuestion(); resetQuizTimer(); } }
+        
+        function updatePaletteModal() {
+            const grid = document.getElementById('paletteGridModal');
+            if (!grid) return;
+            grid.innerHTML = '';
+            for (let i = 0; i < currentQuizQuestions.length; i++) {
+                const item = document.createElement('div');
+                item.className = 'palette-item-modal';
+                if (quizAnswers[i] !== undefined) item.classList.add('answered');
+                if (quizBookmarks[i]) item.classList.add('bookmarked');
+                if (i === currentQuizIndex) item.classList.add('current');
+                item.innerText = i + 1;
+                item.onclick = () => { currentQuizIndex = i; renderQuizQuestion(); resetQuizTimer(); closePaletteModal(); };
+                grid.appendChild(item);
+            }
+        }
+        
+        function startQuizTimer() {
+            if (quizTimerInterval) clearInterval(quizTimerInterval);
+            document.getElementById('timerDisplay').innerHTML = `<i class="fas fa-hourglass-half"></i> Time left: ${formatTime(quizTimeLeft)}`;
+            quizTimerInterval = setInterval(() => {
+                if (!quizActive) return;
+                if (quizTimeLeft <= 0) {
+                    clearInterval(quizTimerInterval);
+                    if (currentQuizIndex < currentQuizQuestions.length - 1) { 
+                        currentQuizIndex++; renderQuizQuestion(); 
+                        quizTimeLeft = parseInt(document.getElementById('quizTimerModal').value); 
+                        startQuizTimer(); 
+                    } else showSubmitConfirm();
+                } else { 
+                    quizTimeLeft--; 
+                    document.getElementById('timerDisplay').innerHTML = `<i class="fas fa-hourglass-half"></i> Time left: ${formatTime(quizTimeLeft)}`;
+                }
+            }, 1000);
+        }
+        
+        function resetQuizTimer() {
+            if (quizTimerInterval) clearInterval(quizTimerInterval);
+            const t = parseInt(document.getElementById('quizTimerModal').value);
+            if (t > 0) { quizTimeLeft = t; startQuizTimer(); }
+            else document.getElementById('timerDisplay').innerHTML = '';
+        }
+        
+        function initSwipe() {
+            const container = document.getElementById('quizContainer');
+            if (container) {
+                container.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+                container.addEventListener('touchend', (e) => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    if (touchStartX - touchEndX > 40) nextQuizQuestion();
+                    if (touchEndX - touchStartX > 40) prevQuizQuestion();
+                });
+            }
+        }
+        
+        function showSubmitConfirm() { document.getElementById('submitConfirmModal').style.display = 'flex'; }
+        function closeSubmitConfirm() { document.getElementById('submitConfirmModal').style.display = 'none'; }
+        function confirmQuit() { if (confirm('Quit quiz? Progress will be lost.')) cancelQuiz(); }
+        
+        function submitQuizResult() {
+            if (quizOverallTimer) clearInterval(quizOverallTimer);
+            closeSubmitConfirm();
+            quizActive = false;
+            if (quizTimerInterval) clearInterval(quizTimerInterval);
+            
+            let score = 0;
+            let wrongList = [];
+            let unattemptedList = [];
+            
+            for (let i = 0; i < currentQuizQuestions.length; i++) {
+                if (quizAnswers[i] === undefined) {
+                    unattemptedList.push({ question: currentQuizQuestions[i], index: i });
+                } else if (quizAnswers[i] === currentQuizQuestions[i].correct) {
+                    score++;
+                } else {
+                    wrongList.push({ 
+                        question: currentQuizQuestions[i], 
+                        userAnswer: quizAnswers[i], 
+                        correctAnswer: currentQuizQuestions[i].correct 
+                    });
+                }
+            }
+            
+            const percent = (score / currentQuizQuestions.length) * 100;
+            const timeTaken = Math.floor((Date.now() - quizStartTime) / 1000);
+            testsCompleted++; 
+            saveUserData();
+            
+            lastQuizResult = { 
+                wrongQuestions: wrongList, 
+                unattemptedQuestions: unattemptedList,
+                score: score, 
+                total: currentQuizQuestions.length,
+                unattemptedCount: unattemptedList.length
+            };
+            
+            document.getElementById('active-quiz').style.display = 'none';
+            document.getElementById('floatingPalette').style.display = 'none';
+            document.getElementById('resultPage').style.display = 'block';
+            document.getElementById('resultPercentage').innerHTML = `${percent.toFixed(0)}%`;
+            document.getElementById('resultCorrect').innerHTML = score;
+            document.getElementById('resultWrong').innerHTML = wrongList.length;
+            document.getElementById('resultUnattempted').innerHTML = unattemptedList.length;
+            document.getElementById('resultTotal').innerHTML = currentQuizQuestions.length;
+            document.getElementById('timeTakenDisplay').innerHTML = `⏱️ Time Taken: ${formatTimeTaken(timeTaken)}`;
+            
+            let angle = (percent / 100) * 360;
+            document.getElementById('circleProgress').style.background = `conic-gradient(#6366f1 ${angle}deg, #e2e8f0 ${angle}deg)`;
+            
+            document.getElementById('reviewSection').classList.add('hidden');
+            updateResultThemeIcon();
+        }
+        
+        function showReview(type) {
+            const reviewSection = document.getElementById('reviewSection');
+            const reviewList = document.getElementById('reviewList');
+            const reviewTitle = document.getElementById('reviewTitle');
+            
+            reviewSection.classList.remove('hidden');
+            
+            let items = [];
+            let title = '';
+            
+            if (type === 'wrong') {
+                items = lastQuizResult.wrongQuestions;
+                title = '❌ Wrong Answers Review';
+                reviewTitle.innerHTML = `<i class="fas fa-times-circle"></i> ${title}`;
+            } else if (type === 'unattempted') {
+                items = lastQuizResult.unattemptedQuestions;
+                title = '⚪ Unattempted Questions Review';
+                reviewTitle.innerHTML = `<i class="fas fa-question-circle"></i> ${title}`;
+            } else {
+                title = '📋 Complete Review';
+                reviewTitle.innerHTML = `<i class="fas fa-list"></i> ${title}`;
+                
+                for (let i = 0; i < currentQuizQuestions.length; i++) {
+                    const q = currentQuizQuestions[i];
+                    const userAnswer = quizAnswers[i];
+                    const isCorrect = userAnswer !== undefined && userAnswer === q.correct;
+                    const isUnattempted = userAnswer === undefined;
+                    
+                    items.push({
+                        question: q,
+                        userAnswer: userAnswer,
+                        correctAnswer: q.correct,
+                        isCorrect: isCorrect,
+                        isUnattempted: isUnattempted,
+                        index: i
+                    });
+                }
+            }
+            
+            if (items.length === 0) {
+                reviewList.innerHTML = '<div style="text-align:center; padding:20px;">✨ No questions to review! ✨</div>';
+                return;
+            }
+            
+            reviewList.innerHTML = items.map((item, idx) => {
+                const q = item.question;
+                
+                if (type === 'wrong') {
+                    const userOpt = q.options[item.userAnswer];
+                    const correctOpt = q.options[item.correctAnswer];
+                    return `
+                        <div class="review-item wrong">
+                            <div class="review-question"><strong>Q${idx+1}.</strong> ${q.text}</div>
+                            <div class="review-answer user-wrong"><i class="fas fa-times-circle"></i> Your Answer: ${userOpt}</div>
+                            <div class="review-answer correct-answer"><i class="fas fa-check-circle"></i> Correct Answer: ${correctOpt}</div>
+                            <div style="font-size:0.7rem; margin-top:8px; padding:6px; background:rgba(0,0,0,0.05); border-radius:8px;"><i class="fas fa-lightbulb"></i> ${q.explanation || 'No explanation'}</div>
+                        </div>
+                    `;
+                } else if (type === 'unattempted') {
+                    const correctOpt = q.options[item.question.correct];
+                    return `
+                        <div class="review-item unattempted">
+                            <div class="review-question"><strong>Q${idx+1}.</strong> ${q.text}</div>
+                            <div class="review-answer unattempted-show"><i class="fas fa-eye-slash"></i> Not Attempted</div>
+                            <div class="review-answer correct-answer"><i class="fas fa-check-circle"></i> Correct Answer: ${correctOpt}</div>
+                            <div style="font-size:0.7rem; margin-top:8px; padding:6px; background:rgba(0,0,0,0.05); border-radius:8px;"><i class="fas fa-lightbulb"></i> ${q.explanation || 'No explanation'}</div>
+                        </div>
+                    `;
+                } else {
+                    const isCorrect = item.isCorrect;
+                    const isUnattempted = item.isUnattempted;
+                    let statusClass = '';
+                    let statusIcon = '';
+                    let userAnswerText = '';
+                    
+                    if (isUnattempted) {
+                        statusClass = 'unattempted';
+                        statusIcon = '<i class="fas fa-eye-slash"></i>';
+                        userAnswerText = 'Not Attempted';
+                    } else if (isCorrect) {
+                        statusClass = 'correct';
+                        statusIcon = '<i class="fas fa-check-circle"></i>';
+                        userAnswerText = q.options[item.userAnswer];
+                    } else {
+                        statusClass = 'wrong';
+                        statusIcon = '<i class="fas fa-times-circle"></i>';
+                        userAnswerText = q.options[item.userAnswer];
+                    }
+                    
+                    const correctOpt = q.options[item.correctAnswer];
+                    
+                    return `
+                        <div class="review-item ${statusClass}">
+                            <div class="review-question"><strong>Q${idx+1}.</strong> ${q.text}</div>
+                            <div class="review-answer ${isUnattempted ? 'unattempted-show' : (isCorrect ? 'correct-answer' : 'user-wrong')}">
+                                ${statusIcon} Your Answer: ${userAnswerText}
+                            </div>
+                            ${!isCorrect ? `<div class="review-answer correct-answer"><i class="fas fa-check-circle"></i> Correct Answer: ${correctOpt}</div>` : ''}
+                            <div style="font-size:0.7rem; margin-top:8px; padding:6px; background:rgba(0,0,0,0.05); border-radius:8px;"><i class="fas fa-lightbulb"></i> ${q.explanation || 'No explanation'}</div>
+                        </div>
+                    `;
+                }
+            }).join('');
+            
+            reviewSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function closeResultPage() {
+            document.getElementById('resultPage').style.display = 'none';
+            document.getElementById('mainAppContainer').style.display = 'block';
+            backToSubjects();
+        }
+        
+        function showProfileModal() {
+            updateAllCounters();
+            document.getElementById('profileModal').style.display = 'flex';
+            closeSidebar();
+        }
+        function closeProfileModal() { document.getElementById('profileModal').style.display = 'none'; }
+        function cancelQuiz() { if (quizTimerInterval) clearInterval(quizTimerInterval); if (quizOverallTimer) clearInterval(quizOverallTimer); quizActive = false; document.getElementById('floatingPalette').style.display = 'none'; document.getElementById('active-quiz').style.display = 'none'; document.getElementById('mainAppContainer').style.display = 'block'; backToSubjects(); }
+        function openPaletteModal() { document.getElementById('paletteModal').style.display = 'flex'; updatePaletteModal(); }
+        function closePaletteModal() { document.getElementById('paletteModal').style.display = 'none'; }
+        
+        function updateAdminUI() {
+            document.querySelectorAll('.sidebar-item.locked').forEach(item => {
+                if (isAdmin) { item.classList.remove('locked'); item.style.opacity = '1'; }
+                else { item.classList.add('locked'); item.style.opacity = '0.6'; }
+            });
+        }
+        
+        function checkAdminAndShow(section) {
+            if (isAdmin) showAdminSection(section);
+            else showAdminLogin();
+        }
+        
+        function showAdminSection(section) {
+            document.getElementById('mainAppContainer').style.display = 'none';
+            document.getElementById(section).style.display = 'block';
+            if (section === 'edit-topics') loadEditTopicsList();
+            if (section === 'settings') updateSectionsList();
+            if (section === 'sections-edit') updateSectionsList();
+            closeSidebar();
+        }
+        
+        function backToDashboard() {
+            document.getElementById('mainAppContainer').style.display = 'block';
+            ['add-question', 'add-topic', 'add-subtopic', 'edit-topics', 'settings', 'sections-edit', 'active-quiz', 'resultPage'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+            updateAllCounters();
+            updateSectionsGrid();
+        }
+        
+        function showAboutApp() { document.getElementById('aboutAppModal').style.display = 'flex'; closeSidebar(); }
+        function closeAboutAppModal() { document.getElementById('aboutAppModal').style.display = 'none'; }
+        function showAboutDeveloper() { document.getElementById('aboutDevModal').style.display = 'flex'; closeSidebar(); }
+        function closeAboutDevModal() { document.getElementById('aboutDevModal').style.display = 'none'; }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('active'); }
+        function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('active'); }
+        function showAdminLogin() { document.getElementById('adminLoginModal').style.display = 'flex'; closeSidebar(); }
+        function closeAdminLogin() { document.getElementById('adminLoginModal').style.display = 'none'; }
+        function verifyAdmin() {
+            if (document.getElementById('adminPasswordInput').value === '@Here139') {
+                isAdmin = true;
+                updateAdminUI();
+                closeAdminLogin();
+                alert('✅ Admin unlocked!');
+            } else alert('❌ Wrong password🤣!');
+        }
+        
+        window.toggleDarkMode = function() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            const themeBtn = document.querySelector('.theme-toggle');
+            if (themeBtn) {
+                themeBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            }
+            updateResultThemeIcon();
+        };
+        
+        function loadDarkMode() {
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                const themeBtn = document.querySelector('.theme-toggle');
+                if (themeBtn) themeBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+            updateResultThemeIcon();
+        }
+        
+        function renderAllQuestions() {
+            let container = document.getElementById('allQuestionsContainer');
+            if (container) {
+                container.innerHTML = questionsBank.map(q => `<div style="background:#fafbfc; padding:10px; border-radius:14px; margin-bottom:8px;"><strong style="color:#6366f1">[${q.section}] ${q.topic || ''}${q.subtopic ? ' - ' + q.subtopic : ''}</strong> ${q.text.substring(0, 60)}... <button style="float:right; background:#ef4444; color:white; border:none; padding:2px 8px; border-radius:16px;" onclick="deleteQuestion(${q.id})">Del</button></div>`).join('');
+            }
+        }
+        
+        async function deleteQuestion(id) {
+            if (!isAdmin) return alert('🔒 Admin required!');
+            if (confirm('Delete?')) {
+                await deleteDoc(doc(db, "questions", id.toString()));
+                await loadQuestionsFromFirestore();
+            }
+        }
+        
+        function importFromFile(input) {
+            if (!isAdmin) return;
+            let file = input.files[0];
+            if (!file) return;
+            let reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    let data = JSON.parse(e.target.result);
+                    let qs = Array.isArray(data) ? data : (data.questions || []);
+                    let added = 0, skipped = 0;
+                    for (const q of qs) {
+                        if (!questionsBank.some(ex => ex.text === q.text) && q.text && q.options && q.correct !== undefined) {
+                            let newSection = q.section || 'general';
+                            if (!sections.includes(newSection)) sections.push(newSection);
+                            const newId = nextId++;
+                            await setDoc(doc(db, "questions", newId.toString()), { id: newId, section: newSection, topic: q.topic || '', subtopic: q.subtopic || '', text: q.text, options: q.options, correct: q.correct, explanation: q.explanation || 'No explanation' });
+                            added++;
+                        } else skipped++;
+                    }
+                    await loadQuestionsFromFirestore();
+                    alert(`✅ Imported: ${added} new, Skipped: ${skipped} duplicates`);
+                } catch(err) { alert('Invalid JSON'); }
+                input.value = '';
+            };
+            reader.readAsText(file);
+        }
+        
+        window.importFromCode = async function() {
+            if (!isAdmin) { alert('🔒 Admin required!'); return; }
+            const jsonText = document.getElementById('jsonCodeInput').value.trim();
+            if (!jsonText) { alert('Please paste JSON code'); return; }
+            try {
+                let data = JSON.parse(jsonText);
+                let qs = Array.isArray(data) ? data : (data.questions || []);
+                let added = 0, skipped = 0;
+                for (const q of qs) {
+                    if (!questionsBank.some(ex => ex.text === q.text) && q.text && q.options && q.correct !== undefined) {
+                        let newSection = q.section || 'general';
+                        if (!sections.includes(newSection)) sections.push(newSection);
+                        const newId = nextId++;
+                        await setDoc(doc(db, "questions", newId.toString()), { id: newId, section: newSection, topic: q.topic || '', subtopic: q.subtopic || '', text: q.text, options: q.options, correct: q.correct, explanation: q.explanation || 'No explanation' });
+                        added++;
+                    } else skipped++;
+                }
+                await loadQuestionsFromFirestore();
+                alert(`✅ Imported: ${added} new, Skipped: ${skipped} duplicates`);
+                document.getElementById('jsonCodeInput').value = '';
+            } catch(err) { alert('Invalid JSON format: ' + err.message); }
+        };
+        
+        function exportAllData() {
+            let data = { questions: questionsBank, sections, topicsData, subtopicsData, testsCompleted, bookmarkedQuestions };
+            let a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}));
+            a.download = `quizify_backup_${Date.now()}.json`;
+            a.click();
+        }
+        
+        function resetAllData() {
+            if (!isAdmin) return;
+            if (confirm('⚠️ Delete ALL questions?')) {
+                const deleteAll = async () => {
+                    const querySnapshot = await getDocs(collection(db, "questions"));
+                    for (const docSnap of querySnapshot.docs) {
+                        await deleteDoc(doc(db, "questions", docSnap.id));
+                    }
+                    await loadQuestionsFromFirestore();
+                    alert('All questions deleted!');
+                };
+                deleteAll();
+            }
+        }
+        
+        function saveToLocal() {}
+        
+        window.showTopics = showTopics;
+        window.showSubTopics = showSubTopics;
+        window.backToSubjects = backToSubjects;
+        window.backToTopics = backToTopics;
+        window.openTopicQuizSetup = openTopicQuizSetup;
+        window.openQuizSetup = openQuizSetup;
+        window.closeQuizSetup = closeQuizSetup;
+        window.startQuizFromModal = startQuizFromModal;
+        window.prevQuizQuestion = prevQuizQuestion;
+        window.nextQuizQuestion = nextQuizQuestion;
+        window.selectQuizOption = selectQuizOption;
+        window.toggleQuizBookmark = toggleQuizBookmark;
+        window.showSubmitConfirm = showSubmitConfirm;
+        window.closeSubmitConfirm = closeSubmitConfirm;
+        window.confirmQuit = confirmQuit;
+        window.submitQuizResult = submitQuizResult;
+        window.showReview = showReview;
+        window.closeResultPage = closeResultPage;
+        window.showProfileModal = showProfileModal;
+        window.closeProfileModal = closeProfileModal;
+        window.openPaletteModal = openPaletteModal;
+        window.closePaletteModal = closePaletteModal;
+        window.editSection = editSection;
+        window.deleteSection = deleteSection;
+        window.saveNewTopic = saveNewTopic;
+        window.saveNewSubTopic = saveNewSubTopic;
+        window.saveNewQuestion = saveNewQuestion;
+        window.addNewSection = addNewSection;
+        window.importFromFile = importFromFile;
+        window.exportAllData = exportAllData;
+        window.resetAllData = resetAllData;
+        window.showAdminLogin = showAdminLogin;
+        window.closeAdminLogin = closeAdminLogin;
+        window.verifyAdmin = verifyAdmin;
+        window.closeAboutAppModal = closeAboutAppModal;
+        window.closeAboutDevModal = closeAboutDevModal;
+        window.showAboutApp = showAboutApp;
+        window.showAboutDeveloper = showAboutDeveloper;
+        window.toggleSidebar = toggleSidebar;
+        window.closeSidebar = closeSidebar;
+        window.backToDashboard = backToDashboard;
+        window.checkAdminAndShow = checkAdminAndShow;
+        window.deleteQuestion = deleteQuestion;
+        window.editUserName = editUserName;
+        window.showRandomQuiz = showRandomQuiz;
+        window.importFromCode = importFromCode;
+        window.editSubTopic = editSubTopic;
+        window.deleteSubTopic = deleteSubTopic;
+        window.editTopicName = editTopicName;
+        window.deleteTopicName = deleteTopicName;
+        window.updateSubTopicOptions = updateSubTopicOptions;
+        window.zoomIn = zoomIn;
+        window.zoomOut = zoomOut;
+        window.clearCurrentResponse = clearCurrentResponse;
+    </script>
+</body>
+</html>
